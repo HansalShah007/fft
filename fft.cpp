@@ -1,4 +1,6 @@
-#include <iostream>
+#include <pybind11/pybind11.h>
+#include <pybind11/complex.h>
+#include <pybind11/stl.h>
 #include <vector>
 #include <complex>
 #include <cmath>
@@ -50,14 +52,8 @@ vector<complex<double>> fft(vector<complex<double>>& a) {
     return y;
 }
 
-int main() {
-    vector<complex<double>> coeffs = {1, 2, 3, 4, 5};
-
-    auto result = fft(coeffs);
-
-    for (const auto& val : result) {
-        cout << val << endl;
-    }
-
-    return 0;
+PYBIND11_MODULE(fft, m) {
+    m.doc() = "FFT module implemented in C++";
+    m.def("fft", &fft, "A function which computes the FFT of a complex number vector");
+    m.def("nearest_pow_2", &nearest_pow_2, "A function that returns the next nearest value that is a power of 2");
 }
