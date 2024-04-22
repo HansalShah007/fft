@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)  # Update this line to avoid deprecation warning
-project(fft)
+project(iterative_fft)
 
 # Fetch pybind11 from its GitHub repository
 include(FetchContent)
@@ -10,4 +10,4 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-pybind11_add_module(fft /workspace/fft/fft.cpp)
+pybind11_add_module(iterative_fft /workspace/fft/iterative_fft.cpp)
