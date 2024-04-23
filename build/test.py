@@ -2,7 +2,7 @@ from iterative_fft import fft, nearest_pow_2
 import librosa
 import numpy as np
 
-original_audio, sample_rate = librosa.load('audio_files/River Flows in You.wav', sr=None)
+original_audio, sample_rate = librosa.load('../audio_files/River Flows in You.wav', sr=None)
 
 reconstructed_audio = original_audio
 
