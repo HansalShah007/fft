@@ -1,0 +1,26 @@
+diff: 4.17475e-24
+Threads 64 for 1000
+Elapsed time: 0.005095 sec
+
+diff: 3.60675e-21
+Threads 64 for 10000
+Elapsed time: 0.044743 sec
+
+diff: 5.46421e-18
+Threads 64 for 100000
+Elapsed time: 0.368133 sec
+
+diff: 6.91165e-16
+Threads 64 for 1000000
+Elapsed time: 3.16328 sec
+
+diff: 6.61881e-12
+Threads 64 for 10000000
+Elapsed time: 57.3571 sec
+
+Code blurb
+--------------------------------------------------------
+int range = 10000000;
+for (int i = 0; i < range; i++) {
+	complexVector.push_back(complex<double>(5*sin(i), 0));
+}
