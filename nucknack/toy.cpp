@@ -14,30 +14,23 @@ export OMP_PROC_BIND=spread
 */
 
 int main() {
-	auto start = std::chrono::steady_clock::now();
+    int shared_variable = 0;
 	#pragma omp master
 	{
-		std::cout << "Threads: " << omp_get_num_threads() << endl;
+		#pragma omp parallel shared(shared_variable)
+		{
+			cout << omp_get_thread_num() << endl;
+			//shared_variable += omp_get_thread_num();
+		}
 	}
-
-    int shared_variable = 0;
-    #pragma omp parallel shared(shared_variable)
-    {
-        // Increment the shared variable with a lock
-        #pragma omp atomic
-        shared_variable++;
-
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
+	
+	/*
 	#pragma omp barrier
 
 	#pragma omp master
 	{
-		cout << "Shared " << shared_variable << endl;
-		auto end = std::chrono::steady_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		std::cout << "Elapsed time: " << 1.0*duration/1000000 << " sec" << std::endl;
+		cout << shared_variable << endl;
 	}
+	*/
     return 0;
 }

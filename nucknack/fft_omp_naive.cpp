@@ -18,6 +18,7 @@ export OMP_PROC_BIND=spread
 
 const double PI = acos(-1);
 
+
 // Function to find the nearest power of 2
 int nearest_pow_2(int n) {
     int power = 1;
@@ -34,67 +35,6 @@ int reverse(int num, int lg_n) {
 					res |= 1 << (lg_n - 1 - i);
 	}
 	return res;
-}
-
-
-vector<cd>& iter_fft(vector<cd> & a, bool invert) {
-    /*#pragma omp parallel
-    {
-		int id = omp_get_thread_num();
-		#pragma omp critical
-        cout << id << endl;
-    }*/
-
-	// Finding the number of steps of butterfly FFTs required
-	int n = a.size();
-	int lg_n = 0;
-	while ((1 << lg_n) < n)
-			lg_n++;
-	
-	// Padding the array with 0s to make it the size of power of 2
-	if(n!=(1<<lg_n)){ 
-			a.resize(1<<lg_n, 0);
-			n = 1 << lg_n;
-	}
-
-	// Applying bit reversal on the original array (inplace)
-	for (int i = 0; i < n; i++) {
-			int reversed_bits = reverse(i, lg_n);
-			if (i < reversed_bits)
-					swap(a[i], a[reversed_bits]);
-	}
-
-	// Iterating through pairs of number of different lengths, starting from 2
-	for (int len = 2; len <= n; len <<= 1) {
-
-			// distribute parallel work, place barrier at end
-
-			// Configuring the principal root of unity that will be used for computing the FFT values for this particular length of pairs
-			double ang = 2 * PI / len * (invert ? -1 : 1);
-			cd wlen(cos(ang), sin(ang));
-
-			// Iterating through all the possible, non-overlapping pairs for this length
-			for (int i = 0; i < n; i += len) {
-					// Computing the FFT values for each pair inplace
-					cd w(1);
-					for (int j = 0; j < len / 2; j++) {
-							cd u = a[i+j];
-							cd v = a[i+j+len/2] * w;
-							a[i+j] = u + v;
-							a[i+j+len/2] = u - v;
-							w *= wlen;
-					}
-
-			}
-	}
-
-    // Applying the normalization factor if the function was configured for converting inverse FFT
-    if (invert) {
-        for (cd & x : a)
-            x /= n;
-    }
-
-    return a;
 }
 
 vector<cd>& fft(vector<cd> & a, bool invert) {
@@ -127,15 +67,13 @@ vector<cd>& fft(vector<cd> & a, bool invert) {
 	// Iterating through pairs of number of different lengths, starting from 2
 	for (int len = 2; len <= n; len <<= 1) {
 
-			// distribute parallel work, place barrier at end
-
 			// Configuring the principal root of unity that will be used for computing the FFT values for this particular length of pairs
 			double ang = 2 * PI / len * (invert ? -1 : 1);
 			cd wlen(cos(ang), sin(ang));
 
 			// Iterating through all the possible, non-overlapping pairs for this length
-			#pragma omp parallel for shared(a)
 			for (int i = 0; i < n; i += len) {
+
 					// Computing the FFT values for each pair inplace
 					cd w(1);
 					for (int j = 0; j < len / 2; j++) {
@@ -159,28 +97,37 @@ vector<cd>& fft(vector<cd> & a, bool invert) {
 }
 
 int main() {
+	// Clocking and sanity checks for thread counts
+	auto start = std::chrono::steady_clock::now();
+    int shared_variable = 0;
+    #pragma omp parallel shared(shared_variable)
+    {
+        // Increment the shared variable with a lock
+        #pragma omp atomic
+        shared_variable++;
+    }
+
+	#pragma omp barrier
+
 	#pragma omp master
 	{
 		// Run fft and sanity check
 		vector<std::complex<double>> complexVector;
-		vector<cd> complexVectorCopy;
 
 		// Add some complex values to the vector
-		int range = 6000000;
+		int range = 1000;
 		for (int i = 0; i < range; i++) {
 			complexVector.push_back(complex<double>(i, 0));
-			complexVectorCopy.push_back(complex<double>(i, 0));
 		}
 
-		auto start = std::chrono::steady_clock::now();
-		fft(fft(complexVector, 0), 1);
-		//iter_fft(complexVectorCopy, 0);
+		vector<cd> complexVectorCopy = complexVector;
+		
+		vector<complex<double>> sol = fft(fft(complexVector, 0), 1);
 		auto end = std::chrono::steady_clock::now();
 
 		double diff = 0.;
 		for (int i = 0; i < range; ++i) {
-			//cout << complexVector[i].real() << " ";
-			diff += pow(1.0*complexVector[i].real() - complexVectorCopy[i].real(), 2);
+			diff += pow(1.0*complexVectorCopy[i].real() - sol[i].real(), 2);
 		}
 
 		cout << "diff: " << diff << endl;
