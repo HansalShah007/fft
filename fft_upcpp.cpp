@@ -97,17 +97,17 @@ vector<cd>& iterative_fft(vector<cd> & a, bool invert) {
         for (cd & x : a)
             x /= n;
     }
-
+    printf("\n\n\n\n\n\n \n\n");
     if(upcxx::rank_me() == 0){
         
         for (int i = 0; i < a.size(); i++){
-            printf("%f \n",  a[i] );
+            printf(" %f \n",  a[i] );
         }
     }
 
     return a;
 }
-
+/*
 vector<cd>& fft_old(vector<cd> & a, bool invert) {
     
         //TODO make sure this isn't computed on every rank for now
@@ -176,7 +176,7 @@ vector<cd>& fft_old(vector<cd> & a, bool invert) {
         }
 
     return a;
-}
+}*/
 
 void sub_fft(vector<cd> & a){
     int n = a.size();
@@ -366,7 +366,7 @@ void fft(vector<cd> & a ) {
     upcxx::barrier();
 
     local_a_copy = local_ref_a;
-    //local_a = local_ref_a; 
+    local_a = local_ref_a; 
 
     for (int i = 0; i < local_a->size(); i++){
 
