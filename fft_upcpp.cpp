@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 
+#include <chrono>
+
 
 /*
 #include <pybind11/pybind11.h>
@@ -27,6 +29,14 @@ const double PI = acos(-1);
 #include "butil.hpp"
 
 
+
+float sum_milliseconds = 0;
+using Clock = std::chrono::high_resolution_clock;
+
+std::chrono::time_point<Clock> start_time, stop_time;
+
+// Define time point variables for start and stop times
+//std::chrono::time_point<Clock> start_time, stop_time;
 
 
 // Function to find the nearest power of 2
@@ -97,13 +107,14 @@ vector<cd>& iterative_fft(vector<cd> & a, bool invert) {
         for (cd & x : a)
             x /= n;
     }
-    printf("\n\n\n\n\n\n \n\n");
-    if(upcxx::rank_me() == 0){
+
+    // printf("\n\n\n\n\n\n \n\n");
+    // if(upcxx::rank_me() == 0){
         
-        for (int i = 0; i < a.size(); i++){
-            printf(" %f \n",  a[i] );
-        }
-    }
+    //     for (int i = 0; i < a.size(); i++){
+    //         printf(" %f \n",  a[i] );
+    //     }
+    // }
 
     return a;
 }
@@ -266,10 +277,6 @@ void fft(vector<cd> & a ) {
     
 
 
-    //assume bit reversal done
-
-
-
     int start = upcxx::rank_me()*  upcxx::rank_n();
     int end = (upcxx::rank_me()+1 )* upcxx::rank_n();
 
@@ -285,9 +292,8 @@ void fft(vector<cd> & a ) {
     //     printf("%f \n",  local_ref_a[i] );
     // }
 
-
-
     //int nr_of_steps_total = lg_n;
+
 
     sub_fft(local_ref_a);
 
@@ -390,10 +396,10 @@ void fft(vector<cd> & a ) {
     local_ref_a = *local_a;
 
 
-    printf(" \n\n %d ref a after 2nd communication  \n\n", upcxx::rank_me());
-    for (int i = 0; i < local_a->size(); i++){
-        printf("%f \n",  local_ref_a[i] );
-    }
+    // printf(" \n\n %d ref a after 2nd communication  \n\n", upcxx::rank_me());
+    // for (int i = 0; i < local_a->size(); i++){
+    //     printf("%f \n",  local_ref_a[i] );
+    // }
 
 
 
@@ -406,6 +412,9 @@ int main(int argc, char** argv) {
 
 
     vector<cd> a{ 1, 2, 3, 4,6,7,8,9,10, 11,12,13,14,15,16 };
+
+    
+    start_time = Clock::now();
 
     int n = a.size();
     int lg_n = 0;
@@ -421,10 +430,29 @@ int main(int argc, char** argv) {
     fft(a);
 
 
+    stop_time = Clock::now();
+    
+    int diff = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time).count();
+
+    int sum_to_P0 = upcxx::reduce_one(diff, upcxx::op_fast_add, 0).wait();
+    //upcxx::global_ptr<complex<double>> shared_a_ptr = upcxx::broadcast(upcxx::new_array<complex<double>>(n), 0).wait();
+
+    //printf("rank  %d  diff   %d", upcxx::rank_me(), diff);
+
+    if (upcxx::rank_me() == 0){
+
+        int avg_recv = 0;
+        int rank_n = upcxx::rank_n();
+
+        printf("sum %d", sum_to_P0/upcxx::rank_n());
+
+    }
 
 
-    vector<cd> b{ 1, 2, 3, 4,6,7,8,9,10, 11,12,13,14,15,16 };
-    iterative_fft(b, 0);
+
+
+    //vector<cd> b{ 1, 2, 3, 4,6,7,8,9,10, 11,12,13,14,15,16 };
+    //iterative_fft(b, 0);
 
 
 
