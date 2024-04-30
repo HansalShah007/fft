@@ -11,6 +11,13 @@
 
 #include <chrono>
 
+#include <vector>
+#include <algorithm>
+#include <ctime>
+#include <iostream>
+#include <vector>
+#include <complex>
+#include <random>
 
 /*
 #include <pybind11/pybind11.h>
@@ -218,8 +225,6 @@ void sub_fft_2(vector<cd> & a, int rank, int global_n){
 
     int step_0 = log2(global_n)/2 ;
 
-    //my brain already hurts 
-
 
     for (int len = 2; len <= n; len <<= 1) {
         int subscript = pow(2, (step_0 + log2(len)));
@@ -327,11 +332,8 @@ void fft(vector<cd> & a ) {
 
             upcxx::rpc(target_rank, [] (cd element, int parent_rank,  upcxx::dist_object< std::vector<complex<double>>> &local_a ) {
                 
-                //std::vector<cd> ref_local_a = *local_a;
                 (*local_a)[parent_rank] = element;
-                // ref_local_a[parent_rank] = element;
-                // local_a = ref_local_a;
-
+                
             }, element, upcxx::rank_me(), local_a).wait();
 
         }
@@ -382,10 +384,7 @@ void fft(vector<cd> & a ) {
 
             upcxx::rpc(target_rank, [] (cd element, int parent_rank,  upcxx::dist_object< std::vector<complex<double>>> &local_a ) {
                 
-                //std::vector<cd> ref_local_a = *local_a;
                 (*local_a)[parent_rank] = element;
-                // ref_local_a[parent_rank] = element;
-                // local_a = ref_local_a;
 
             }, element, upcxx::rank_me(), local_a).wait();
 
@@ -402,18 +401,109 @@ void fft(vector<cd> & a ) {
     // }
 
 
+    upcxx::dist_object< std::vector<complex<double>>> fft_result_all = a;
+    if(0 == upcxx::rank_me()){
+
+        std::vector<cd> fft_result = *fft_result_all; 
+
+        for (int i = 0; i < local_a->size(); i++){
+            fft_result[i] = local_ref_a[i];
+        }
+
+        fft_result_all = fft_result;
+    }
+
+    
+    upcxx::barrier();
+
+    if(0 != upcxx::rank_me()){
+        for (int i = 0; i < local_a->size(); i++){
+            cd element = local_ref_a[i];
+            upcxx::rpc(0, [] (cd element, int position,  upcxx::dist_object< std::vector<complex<double>>> &fft_result_all ) {
+                
+                (*fft_result_all)[position] = element;
+
+            }, element, upcxx::rank_me()*nr_of_elements_per_thread + i, fft_result_all).wait();
+
+
+        }
+
+    }
+
+    upcxx::barrier();
+
+    
+
+
+    // if(0 == upcxx::rank_me()){
+    //     std::vector<cd> fft_result = *fft_result_all; 
+    //     printf(" \n\n %d collect on 0  \n\n", upcxx::rank_me());
+
+    //     for (int i = 0; i < n; i++){
+    //         printf("%f \n",  fft_result[i] );
+    //     }
+    // }
 
 }
 
+double random_double() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<> dis(0.0, 1000.0);
+    return dis(gen);
+}
 
 int main(int argc, char** argv) {
     upcxx::init();
 
-
-
-    vector<cd> a{ 1, 2, 3, 4,6,7,8,9,10, 11,12,13,14,15,16 };
+    int vector_size = 16;
+    std::vector<cd> a(vector_size);
+    upcxx::dist_object<std::vector<std::complex<double>>> random_complex_vector_shared;
 
     
+    upcxx::global_ptr<std::complex<double>> b = upcxx::new_array<std::complex<double>>(vector_size);
+
+
+    if (upcxx::rank_me() == 0) {
+        std::vector<std::complex<double>> temp_vector(vector_size);
+        for (int i = 0; i < vector_size; ++i) {
+            double real_part = static_cast<double>(std::rand()) / RAND_MAX * 1000.0;
+            double imag_part = static_cast<double>(std::rand()) / RAND_MAX * 1000.0;
+            temp_vector[i] = std::complex<double>(real_part, imag_part);
+        }
+        std::copy(temp_vector.begin(), temp_vector.end(), b.local());
+    }
+
+    upcxx::barrier();
+
+    upcxx::global_ptr<complex<double>> shared_a_ptr = upcxx::broadcast(b, 0).wait();
+
+    std::vector<std::complex<double>> complex_vector(vector_size);
+    for (int i = 0; i < vector_size; ++i) {
+        complex_vector[i] = upcxx::rget(shared_a_ptr + i).wait();
+    }
+
+    a = complex_vector;
+
+
+
+
+   
+    upcxx::barrier();
+
+
+    
+
+    // printf(" \n\n  a  %d  \n\n", upcxx::rank_me());
+    // for (int i = 0; i < a.size(); i++){
+    //     printf("%f \n",  a[i] );
+    // }
+
+    
+
+
+
+
     start_time = Clock::now();
 
     int n = a.size();
@@ -430,6 +520,11 @@ int main(int argc, char** argv) {
     fft(a);
 
 
+
+
+
+
+
     stop_time = Clock::now();
     
     int diff = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time).count();
@@ -444,10 +539,9 @@ int main(int argc, char** argv) {
         int avg_recv = 0;
         int rank_n = upcxx::rank_n();
 
-        printf("sum %d", sum_to_P0/upcxx::rank_n());
+        printf("ranks: %d, n: %d, fft ran in  %d  ms ", upcxx::rank_n(), n, sum_to_P0/upcxx::rank_n());
 
     }
-
 
 
 
@@ -455,48 +549,6 @@ int main(int argc, char** argv) {
     //iterative_fft(b, 0);
 
 
-
-
-    // compare 
-
-
-
-    // for (auto& element : local_a) {
-    //     cout << element << "\n";
-    // }
-
-
-
-
-    //std::vector<cd> = a
-    /*
-    for (int i = 0; i < a.size(); i++){
-        //auto& element : a) {
-        printf("%f \n",  element, rank_me);
-    
-
-        //bool success = hashmap.insert(kmer);
-        if (!success) {
-            throw std::runtime_error("Error: HashMap is full!");
-        }
-
-
-        if (kmer.backwardExt() == 'F') {
-            start_nodes.push_back(kmer);
-        }
-    }
-
-    fft(a, 0);
-
-
-
-    fft(a, 1);
-
-    for (int i = 0; i < 4; ++i)
-        cout << a[i] << "\n";
-    
-    return 0;
-    */
     
     upcxx::finalize();
 }
