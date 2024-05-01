@@ -42,6 +42,8 @@ using Clock = std::chrono::high_resolution_clock;
 
 std::chrono::time_point<Clock> start_time, stop_time;
 
+std::chrono::time_point<Clock> start_time_2, stop_time_2;
+
 // Define time point variables for start and stop times
 //std::chrono::time_point<Clock> start_time, stop_time;
 
@@ -63,6 +65,41 @@ int reverse(int num, int lg_n) {
     return res;
 }
 
+
+vector<complex<double>> recursive_fft(vector<complex<double>>& a) {
+    int n = a.size();
+
+    if (n == 1)
+        return vector<complex<double>>(1, a[0]);
+
+    // Check if the size is a power of 2, if not pad with zeros
+    int n2 = nearest_pow_2(n);
+    if (n2 > n) {
+        a.resize(n2, 0);
+        n = n2;
+    }
+
+    vector<complex<double>> even(n / 2), odd(n / 2);
+    for (int i = 0; i < n / 2; ++i) {
+        even[i] = a[i * 2];
+        odd[i] = a[i * 2 + 1];
+    }
+
+    auto y_even = recursive_fft(even);
+    auto y_odd = recursive_fft(odd);
+
+    vector<complex<double>> y(n);
+    complex<double> omega_n = exp(complex<double>(0, 2 * PI / n));
+    complex<double> omega = 1;
+
+    for (int j = 0; j < n / 2; ++j) {
+        y[j] = y_even[j] + omega * y_odd[j];
+        y[j + n / 2] = y_even[j] - omega * y_odd[j];
+        omega *= omega_n;
+    }
+
+    return y;
+}
 
 
 vector<cd>& iterative_fft(vector<cd> & a, bool invert) {
@@ -446,6 +483,8 @@ void fft(vector<cd> & a ) {
 
 }
 
+
+
 double random_double() {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -456,7 +495,7 @@ double random_double() {
 int main(int argc, char** argv) {
     upcxx::init();
 
-    int vector_size = 16;
+    int vector_size = 524288; 
     std::vector<cd> a(vector_size);
     upcxx::dist_object<std::vector<std::complex<double>>> random_complex_vector_shared;
 
@@ -505,6 +544,7 @@ int main(int argc, char** argv) {
 
 
     start_time = Clock::now();
+    /*
 
     int n = a.size();
     int lg_n = 0;
@@ -518,6 +558,13 @@ int main(int argc, char** argv) {
     }
 
     fft(a);
+    */
+
+    //iterative_fft(a, 0);
+
+
+    recursive_fft(a);
+
 
 
 
@@ -539,7 +586,9 @@ int main(int argc, char** argv) {
         int avg_recv = 0;
         int rank_n = upcxx::rank_n();
 
-        printf("ranks: %d, n: %d, fft ran in  %d  ms ", upcxx::rank_n(), n, sum_to_P0/upcxx::rank_n());
+        //printf("ranks: %d, n: %d, fft ran in  %d  ms ", upcxx::rank_n(), n, sum_to_P0/upcxx::rank_n());
+
+        printf("iterative:   ranks: %d, n: %d, fft ran in  %d  ms ", upcxx::rank_n(), vector_size, sum_to_P0/upcxx::rank_n());
 
     }
 
