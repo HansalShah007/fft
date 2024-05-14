@@ -27,5 +27,8 @@ target_link_libraries(fft_upcpp PRIVATE UPCXX::upcxx)
 target_compile_definitions(fft_upcpp PRIVATE "KMER_LEN=19")
 
 
+#add_executable(main_fftw main_fftw.cpp)
+
+
 # Copy the job scripts
 configure_file(job_fft_upcpp job_fft_upcpp COPYONLY)

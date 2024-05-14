@@ -368,10 +368,29 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
   /usr/include/c++/12/tr1/poly_hermite.tcc \
   /usr/include/c++/12/tr1/poly_laguerre.tcc \
   /usr/include/c++/12/tr1/riemann_zeta.tcc \
+  /usr/include/c++/12/random \
+  /usr/include/c++/12/bits/random.h \
+  /usr/include/c++/12/x86_64-suse-linux/bits/opt_random.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/pmmintrin.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/emmintrin.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/xmmintrin.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/mmintrin.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/mm_malloc.h \
+  /usr/include/c++/12/stdlib.h \
+  /usr/lib64/gcc/x86_64-suse-linux/12/include/mwaitintrin.h \
+  /usr/include/c++/12/bits/random.tcc \
   ../butil.hpp
 
 
 ../butil.hpp:
+
+/usr/lib64/gcc/x86_64-suse-linux/12/include/mmintrin.h:
+
+/usr/lib64/gcc/x86_64-suse-linux/12/include/emmintrin.h:
+
+/usr/lib64/gcc/x86_64-suse-linux/12/include/pmmintrin.h:
+
+/usr/include/c++/12/random:
 
 /usr/include/c++/12/tr1/poly_laguerre.tcc:
 
@@ -419,6 +438,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/barrier.hpp:
 
+/usr/include/c++/12/bits/random.h:
+
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/lpc_dormant.hpp:
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/completion.hpp:
@@ -461,6 +482,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/team_fwd.hpp:
 
+/usr/lib64/gcc/x86_64-suse-linux/12/include/mm_malloc.h:
+
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/persona.hpp:
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/future/impl_then_lazy.hpp:
@@ -486,6 +509,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 /usr/include/bits/iscanonical.h:
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/gasnet.opt/include/gasnet_fwd.h:
+
+/usr/lib64/gcc/x86_64-suse-linux/12/include/mwaitintrin.h:
 
 /usr/include/c++/12/bits/stl_relops.h:
 
@@ -522,6 +547,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 /usr/include/bits/types/struct_timespec.h:
 
 /usr/include/c++/12/bits/stl_construct.h:
+
+/usr/include/c++/12/x86_64-suse-linux/bits/opt_random.h:
 
 /usr/include/c++/12/pstl/glue_memory_defs.h:
 
@@ -612,6 +639,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 /usr/include/bits/floatn-common.h:
 
 /usr/include/bits/timesize.h:
+
+/usr/include/c++/12/stdlib.h:
 
 /usr/include/bits/waitflags.h:
 
@@ -720,6 +749,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/cuda.hpp:
 
 /usr/include/c++/12/ext/aligned_buffer.h:
+
+/usr/lib64/gcc/x86_64-suse-linux/12/include/xmmintrin.h:
 
 ../fft_upcpp.cpp:
 
@@ -878,6 +909,8 @@ CMakeFiles/fft_upcpp.dir/fft_upcpp.cpp.o: ../fft_upcpp.cpp \
 /usr/include/c++/12/complex:
 
 /global/common/software/m2878/perlmutter/upcxx/2023.9.0/gnu/PrgEnv-gnu-8.5.0-12.3/include/upcxx/upcxx.hpp:
+
+/usr/include/c++/12/bits/random.tcc:
 
 /usr/include/c++/12/algorithm:
 

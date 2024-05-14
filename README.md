@@ -66,7 +66,11 @@ spack install fftw@3.3.10
 g++ main_fftw.cpp -o main_fftw -I/global/homes/b/baurkath/spack-workspace/perlmutter/software/linux-sles15-zen3/gcc-12.3.0/fftw-3.3.10-xh4mphawnx4ag64b5w675rmxrz3pwxux/include -L/global/homes/b/baurkath/spack-workspace/perlmutter/software/linux-sles15-zen3/gcc-12.3.0/fftw-3.3.10-xh4mphawnx4ag64b5w675rmxrz3pwxux/lib -lfftw3
 
 
-./main_fftw
+modify  job_fft_upcpp to have srun ./main_fftw
+sbatch job_fft_upcpp
+
+
+
 
 
 
